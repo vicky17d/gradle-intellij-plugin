@@ -1,5 +1,8 @@
 package org.jetbrains.intellij
 
+import org.gradle.api.Project
+import org.gradle.tooling.BuildException
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.intellij.dependency.IdeaDependency
 import org.jetbrains.intellij.dependency.PluginDependency
 
@@ -30,8 +33,10 @@ class IntelliJPluginExtension {
     // the dependencies on them could be configured only explicitly using intellijExtra function in the dependencies block
     Object[] extraDependencies = []
 
-    IdeaDependency ideaDependency
+    Project project
+    private IdeaDependency ideaDependency
     private final Set<PluginDependency> pluginDependencies = new HashSet<>()
+    private boolean pluginDependenciesConfigured
 
     String getType() {
         if (version == null) {
@@ -66,7 +71,33 @@ class IntelliJPluginExtension {
         return version
     }
 
+    def addPluginDependency(@NotNull PluginDependency pluginDependency) {
+        pluginDependencies.add(pluginDependency)
+    }
+
     Set<PluginDependency> getPluginDependencies() {
+        if (!pluginDependenciesConfigured) {
+            pluginDependenciesConfigured = true
+            project.configurations.getByName(IntelliJPlugin.IDEA_PLUGINS_CONFIGURATION_NAME).resolve()
+        }
         return pluginDependencies
+    }
+
+    def setIdeaDependency(IdeaDependency ideaDependency) {
+        this.ideaDependency = ideaDependency
+    }
+
+    def getIdeaDependency() {
+        if (ideaDependency == null) {
+            project.configurations.getByName(IntelliJPlugin.IDEA_CONFIGURATION_NAME).resolve()
+            if (ideaDependency == null) {
+                throw new BuildException("Cannot resolve ideaDependency", null)
+            }
+        }
+        return ideaDependency
+    }
+
+    def isConfigured() {
+        ideaDependency != null && pluginDependenciesConfigured
     }
 }

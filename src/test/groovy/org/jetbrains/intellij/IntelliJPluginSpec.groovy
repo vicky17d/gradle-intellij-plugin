@@ -27,7 +27,7 @@ class IntelliJPluginSpec extends IntelliJPluginSpecBase {
         disableDebug('Gradle runs ant with another Java, that leads to NoSuchMethodError during the instrumentation')
 
         when:
-        def result = build('4.0', false, 'buildSourceSet', '--info')
+        def result = build('buildSourceSet', '--info')
 
         then:
         result.output.contains('Added @NotNull assertions to 1 files')

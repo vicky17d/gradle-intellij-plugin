@@ -88,7 +88,7 @@ public class AppTest {
     }
 
     protected BuildResult build(boolean fail, String... tasks) {
-        return build('3.4', fail, tasks)
+        return build('4.4', fail, tasks)
     }
 
     protected BuildResult build(String gradleVersion, boolean fail, String... tasks) {
